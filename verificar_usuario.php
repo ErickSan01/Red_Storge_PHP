@@ -2,7 +2,7 @@
 include 'header.php';
 
 try{
-	$conn = mysqli_connect($db_servidor, $db_usuario, $db_pass, $db_baseDatos);
+	$conexion = mysqli_connect($servidor, $usuario, $pass, $baseDatos);
 	if (!$conn) {
 		echo '{"codigo":400, "mensaje": "Error intentando conectar", "respuesta":""}';
 	}else{

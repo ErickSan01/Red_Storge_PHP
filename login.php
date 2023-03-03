@@ -1,19 +1,8 @@
 <?php
 include 'header.php';
 
-$servidor= "localhost";
-$nombreusuario = "root";
-$password = "RedStorge#2407";
-$db = "redstorge";
-
-echo $servidor;
-echo $nombreusuario;
-echo $password;
-echo $db;
-
-
 try{
-    $conn = new mysqli($servidor, $nombreusuario, $password, $db);
+    $conexion = mysqli_connect($servidor, $usuario, $pass, $baseDatos);
     if(!$conn) {
         echo '{"codigo":400, "mensaje": "Error intentando conectar", "respuesta": ""}';
     } else {
