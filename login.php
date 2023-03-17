@@ -6,23 +6,63 @@ try{
     if(!$conn) {
         echo '{"codigo":400, "mensaje": "Error intentando conectar", "respuesta": ""}';
     } else {
-        if(isset($_POST['nombre_usuario']) && isset($_POST['password'])){
-            $usuario = $_POST['nombre_usuario'];
-            $pass =$_POST['password'];
+        if(isset($_POST["nombre_usuario"]) && isset($_POST["password"])){
+            $errors = array();
+            
+            $nombre_usuario = $_POST["nombre_usuario"];
+            $password = $_POST["password"];
+            
+            //Connect to database
+            require dirname(__FILE__) . '/database.php';
+            
+            if ($stmt = $mysqli_conection->prepare("SELECT nombre_usuario, email, password FROM usuario WHERE nombre_usuario = ? LIMIT 1")) {
+                
+                /* bind parameters for markers */
+                $stmt->bind_param('s', $nombre_usuario);
+                    
+                /* execute query */
+                if($stmt->execute()){
+                    
+                    /* store result */
+                    $stmt->store_result();
+    
+                    if($stmt->num_rows > 0){
+                        /* bind result variables */
+                        $stmt->bind_result($username_tmp, $email_tmp, $password_hash);
 
-            $usuario=limpiar_cadena($usuario);
-            $pass=limpiar_cadena($pass);
+                        
+                        /* fetch value */
+                        $stmt->fetch();
 
-            $sql = "SELECT * FROM 'usuario' WHERE nombre_usuario='".$usuario."' and password='".$pass."';";
-            $resultado = $conn->query($sql);
-
-            if($resultado->num_rows > 0){
-                echo '{"codigo":205, "mensaje": "Inicio de sesión correcto", "respuesta": ""}';
-            } else {
-                echo '{"codigo":203, "mensaje": "El usuario NO existe en el sistema", "respuesta": "0"}';
+                        $valido = password_verify($password, $password_hash);
+                        
+                        if($valido){
+                            echo "Success" . "|" . $username_tmp . "|" .  $email_tmp;
+                            
+                            return;
+                        }else{
+                            $errors[] = "Nombre de usuario o contraseña incorrecta";
+                        }
+                    }else{
+                        $errors[] = "Nombre de usuario o contraseña incorrecta";
+                    }
+                    
+                    /* close statement */
+                    $stmt->close();
+                    
+                }else{
+                    $errors[] = "Hubo un error, por favor inténtalo de nuevo";
+                }
+            }else{
+                $errors[] = "Hubo un error, por favor inténtalo de nuevo";
             }
-        } else {
-            echo '{"codigo":402, "mensaje": "Faltan datos para ejecutar la accion solicitada", "respuesta": ""}';
+            
+            if(count($errors) > 0){
+                
+                echo $errors[0];
+            }
+        }else{
+            echo "Datos incompletos";
         }
     }
 } catch(Exception $e){
