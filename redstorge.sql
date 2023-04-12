@@ -23,7 +23,7 @@ CREATE TABLE `encargado_plantel` (
 CREATE TABLE `estudiante` (
   `ID_ESTUDIANTE` int(8) NOT NULL,
   `ID_USUARIO` int(8) NOT NULL,
-  `SEXO` char(1) NOT NULL,
+  `GENERO` char(1) NOT NULL,
   `EDAD` int(3) NOT NULL,
   `CONTEXTO` varchar(200) NOT NULL,
   `TIPO_FAMILIA` varchar(50) NOT NULL,
@@ -64,7 +64,7 @@ CREATE TABLE `plantel` (
 
 CREATE TABLE `pregunta` (
   `ID_PREGUNTA` int(8) NOT NULL,
-  `PREGUNTA` varchar(200) NOT NULL,
+  `PLANTEAMIENTO` varchar(200) NOT NULL,
   `MODULO` int(1) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -74,11 +74,11 @@ CREATE TABLE `pregunta` (
 -- Estructura de tabla para la tabla `respuesta`
 --
 
-CREATE TABLE `respuesta` (
-  `ID_RESPUESTA` int(8) NOT NULL,
+CREATE TABLE `opcion` (
+  `ID_OPCION` int(8) NOT NULL,
   `ID_PREGUNTA` int(8) NOT NULL,
   `INCISO` varchar(1) NOT NULL,
-  `RESPUESTA` varchar(200) NOT NULL
+  `DESCRIPCION` varchar(200) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -95,6 +95,28 @@ CREATE TABLE `usuario` (
   `PASSWORD` varchar(50) NOT NULL,
   `TIPO_USUARIO` char(1) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE `modulo` (
+  `ID_MODULO` int(11) NOT NULL AUTO_INCREMENT,
+  `NOMBRE` varchar(50) NOT NULL,
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE `fase` (
+  `ID_FASE` int(11) NOT NULL AUTO_INCREMENT,
+  `NOMBRE` varchar(50) NOT NULL,
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE `cursar_modulo` (
+  `ID_MODULO` int(11) NOT NULL AUTO_INCREMENT,
+  'ID_ESTUDIANTE' int(8) NOT NULL,
+  `ID_FASE` int(11) NOT NULL,
+  `TIEMPO` float(6,3) NOT NULL,
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+
+
+
+
 
 --
 -- Volcado de datos para la tabla `usuario`
@@ -164,7 +186,20 @@ ALTER TABLE `usuario`
 --
 -- AUTO_INCREMENT de las tablas volcadas
 --
+-- Indices de la tabla `fase`
+ALTER TABLE `modulo`
+  ADD PRIMARY KEY (`ID_MODULO`);
 
+-- Indices de la tabla `modulo`
+ALTER TABLE 'fase'
+  ADD PRIMARY KEY (`ID_FASE`);
+
+-- Indices de la tabla `cursar_modulo`
+ALTER TABLE `cursar_modulo`
+  ADD PRIMARY KEY (`ID_MODULO`, 'ID_JUGADOR', `ID_FASE`),
+  ADD KEY `fk_cursar_modulo_estudiante` (`ID_ESTUDIANTE`),
+  ADD KEY `fk_cursar_modulo_modulo` (`ID_MODULO`),
+  ADD KEY `fk_cursar_modulo_fase` (`ID_FASE`);
 --
 -- AUTO_INCREMENT de la tabla `contestacion`
 --
@@ -240,5 +275,10 @@ ALTER TABLE `grupo`
 
 ALTER TABLE `respuesta`
   ADD CONSTRAINT `fk_respuesta_pregunta` FOREIGN KEY (`ID_PREGUNTA`) REFERENCES `pregunta` (`ID_PREGUNTA`);
-COMMIT;
 
+
+ALTER TABLE `cursar_modulo`
+  ADD CONSTRAINT `fk_cursar_modulo_estudiante` FOREIGN KEY (`ID_ESTUDIANTE`) REFERENCES `estudiante` (`ID_ESTUDIANTE`),
+  ADD CONSTRAINT `fk_cursar_modulo_modulo` FOREIGN KEY (`ID_MODULO`) REFERENCES `modulo` (`ID_MODULO`),
+  ADD CONSTRAINT `fk_cursar_modulo_fase` FOREIGN KEY (`ID_FASE`) REFERENCES `fase` (`ID_FASE`)
+  COMMIT;
